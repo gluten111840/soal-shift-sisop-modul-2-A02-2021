@@ -77,7 +77,7 @@ int main()
     /* The Big Loop */
     while (1) {
         jalaninYak();
-        sleep(30); /* wait 30 seconds */
+        sleep(10); /* wait 10 seconds */
         break;
     }
    exit(EXIT_SUCCESS);
@@ -328,19 +328,19 @@ void makeFolder()
 void downloadFilm()
 {
     execl("/bin/wget", "wget", "--no-check-certificate", "https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download", 
-            "-O", "Film_for_Stevany.zip", (char *)NULL);
+            "-qO", "Film_for_Stevany.zip", (char *)NULL);
 }
 
 void downloadMusik()
 {
     execl("/bin/wget", "wget", "--no-check-certificate", "https://drive.google.com/uc?id=1ZG8nRBRPquhYXq_sISdsVcXx5VdEgi-J&export=download", 
-            "-O", "Musik_for_Stevany.zip", (char *)NULL);
+            "-qO", "Musik_for_Stevany.zip", (char *)NULL);
 }
 
 void downloadPhoto()
 {  
     execl("/bin/wget", "wget", "--no-check-certificate", "https://drive.google.com/uc?id=1FsrAzb9B5ixooGUs0dGiBr-rC7TS9wTD&export=download", 
-            "-O", "Photo_for_Stevany.zip", (char *)NULL);
+            "-qO", "Photo_for_Stevany.zip", (char *)NULL);
 }
 
 void unzipFilm()
