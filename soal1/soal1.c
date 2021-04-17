@@ -14,6 +14,7 @@
 void donlotDanBuatFolder();
 void unzipDuls();
 void terusMove();
+void finishing();
 void deleteZip();
 void makeFolder();
 void downloadFilm();
@@ -25,81 +26,40 @@ void unzipPhoto();
 void moveFilm();
 void moveMusik();
 void movePhoto();
-void delZipFilm();
-void delZipMusik();
-void delZipPhoto();
 void delFoto();
+void delMusik();
+void delFilm();
+void delPyoto();
+void delMusyik();
+void delFylm();
+void bikinZip();
 void ngezip();
 
 int main()
 {
-    pid_t pid, sid;        // Variabel untuk menyimpan PID
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
 
-    pid = fork();     // Menyimpan PID dari Child Process
-
-    /* Keluar saat fork gagal
-    * (nilai variabel pid < 0) */
-    if (pid < 0) {
-        exit(EXIT_FAILURE);
-    }
-
-    /* Keluar saat fork berhasil
-    * (nilai variabel pid adalah PID dari child process) */
-    if (pid > 0) {
-        exit(EXIT_SUCCESS);
-    }
-
-    umask(0);
-
-    sid = setsid();
-    if (sid < 0) {
-        exit(EXIT_FAILURE);
-    }
-
-    if ((chdir("/")) < 0) {
-        exit(EXIT_FAILURE);
-    }
-
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
-
-    while (1) {
-        // Tulis program kalian di sini
-        time_t rawtime;
-        struct tm * timeinfo;
-        char buffer [80];
-
-        time (&rawtime);
-        timeinfo = localtime (&rawtime);
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
+    while(strcmp(buffer, "04-09_16:22") != 0)
+    {
+        sleep(2);
+        rawtime = time(NULL);
+        timeinfo = localtime(&rawtime);
         strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
-        while(strcmp(buffer, "04-09_16:22") != 0)
-        {
-            sleep(2);
-            rawtime = time(NULL);
-            timeinfo = localtime(&rawtime);
-            strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
-        }
-        pid_t child_id;
-        int status;
-        child_id = fork();
-        if(child_id == 0)
-            donlotDanBuatFolder();
-        else
-        {
-            while((wait(&status)) > 0);
-            unzipDuls();
-        }
-        // while(strcmp(buffer, "04-09_22:22") != 0)
-        // {
-        //     sleep(2);
-        //     rawtime = time(NULL);
-        //     timeinfo = localtime(&rawtime);
-        //     strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
-        // }
-        // ngezip();
-            
-        sleep(30);
+    }
+    pid_t child_id;
+    int status;
+    child_id = fork();
+    if(child_id == 0)
+        donlotDanBuatFolder();
+    else
+    {
+        while((wait(&status)) > 0);
+        unzipDuls();
     }
 }
 
@@ -108,8 +68,8 @@ void donlotDanBuatFolder()
     pid_t buatFolder;
     int waitt;
     buatFolder = fork();
-    // if(buatFolder < 0)
-    //     exit(EXIT_FAILURE);
+    if(buatFolder < 0)
+        exit(EXIT_FAILURE);
     if(buatFolder == 0)
     {
         makeFolder();
@@ -120,8 +80,8 @@ void donlotDanBuatFolder()
         pid_t donlotF;
         int waitt1;
         donlotF = fork();
-        // if(donlotF < 0)
-        //     exit(EXIT_FAILURE);
+        if(donlotF < 0)
+            exit(EXIT_FAILURE);
         if(donlotF == 0)
             downloadFilm();
         else
@@ -130,8 +90,8 @@ void donlotDanBuatFolder()
             pid_t donlotM;
             int waitt2;
             donlotM = fork();
-            // if(donlotM < 0)
-            //     exit(EXIT_FAILURE);
+            if(donlotM < 0)
+                exit(EXIT_FAILURE);
             if(donlotM == 0)
                 downloadMusik();
             else
@@ -148,8 +108,8 @@ void unzipDuls()
     pid_t unzipF;
     int wait1;
     unzipF = fork();
-    // if(unzipF < 0)
-    //     exit(EXIT_FAILURE);
+    if(unzipF < 0)
+        exit(EXIT_FAILURE);
     if(unzipF == 0)
         unzipFilm();
     else
@@ -158,8 +118,8 @@ void unzipDuls()
         pid_t unzipM;
         int wait2;
         unzipM = fork();
-        // if(unzipM < 0)
-        //     exit(EXIT_FAILURE);
+        if(unzipM < 0)
+            exit(EXIT_FAILURE);
         if(unzipM == 0)
             unzipMusik();
         else
@@ -168,8 +128,8 @@ void unzipDuls()
             pid_t unzipP;
             int wait3;
             unzipP = fork();
-            // if(unzipP < 0)
-            //     exit(EXIT_FAILURE);
+            if(unzipP < 0)
+                exit(EXIT_FAILURE);
             if(unzipP == 0)
                 unzipPhoto();
             else
@@ -186,8 +146,8 @@ void terusMove()
     pid_t moveF;
     int film;
     moveF = fork();
-    // if(moveF < 0)
-    //     exit(EXIT_FAILURE);
+    if(moveF < 0)
+        exit(EXIT_FAILURE);
     if(moveF == 0)
         moveFilm();
     else
@@ -214,45 +174,97 @@ void terusMove()
             else
             {
                 while((wait(&photo)) > 0);
-                deleteZip();
+                finishing();
             }
         }
     }
 }
 
-void deleteZip()
+void finishing()
 {
-    pid_t delF;
-    int pilm;
-    delF = fork();
-    if(delF < 0)
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
+
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
+    while(strcmp(buffer, "04-09_22:22") != 0)
+    {
+        sleep(2);
+        rawtime = time(NULL);
+        timeinfo = localtime(&rawtime);
+        strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
+    }
+    pid_t tutup1;
+    int yah1;
+    tutup1 = fork();
+    if(tutup1 < 0)
         exit(EXIT_FAILURE);
-    if(delF == 0)
-        delZipFilm();
+    if(tutup1 == 0)
+        delFilm();
     else
     {
-        while((wait(&pilm)) > 0);
-        pid_t delMP;
-        int mp;
-        delMP = fork();
-        if(delMP < 0)
+        while((wait(&yah1)) > 0);
+        pid_t tutup2;
+        int yah2;
+        tutup2 = fork();
+        if(tutup2 < 0)
             exit(EXIT_FAILURE);
-        if(delMP == 0)
-            delZipMusik();
+        if(tutup2 == 0)
+            delFoto();
         else
         {
-            while((wait(&mp)) > 0);
-            pid_t delPn;
-            int png;
-            delPn = fork();
-            if(delPn < 0)
+            while((wait(&yah2)) > 0);
+            pid_t tutup3;
+            int yah3;
+            tutup3 = fork();
+            if(tutup3 < 0)
                 exit(EXIT_FAILURE);
-            if(delPn == 0)
-                delZipPhoto();
+            if(tutup3 == 0)
+                delMusik();
             else
             {
-                while((wait(&png)) > 0);
-                delFoto();
+                while((wait(&yah3)) > 0);
+                bikinZip();
+            }
+        }
+    }
+}
+
+void bikinZip()
+{
+    pid_t zi1;
+    int yi1;
+    zi1 = fork();
+    if(zi1 < 0)
+        exit(EXIT_FAILURE);
+    if(zi1 == 0)
+        ngezip();
+    else
+    {
+        while((wait(&yi1)) > 0);
+        pid_t zi2;
+        int yi2;
+        zi2 = fork();
+        if(zi2 < 0)
+            exit(EXIT_FAILURE);
+        if(zi2 == 0)
+            delFylm();
+        else
+        {
+            while((wait(&yi2)) > 0);
+            pid_t zi3;
+            int yi3;
+            zi3 = fork();
+            if(zi3 < 0)
+                exit(EXIT_FAILURE);
+            if(zi3 == 0)
+                delMusyik();
+            else
+            {
+                while((wait(&yi3)) > 0);
+                delPyoto();
             }
         }
     }
@@ -302,14 +314,14 @@ void unzipPhoto()
 
 void moveFilm()
 {
-    char *argv[] = {"mv", "-T", "./FILM", "./Fylm", NULL};
-    execv("/bin/mv", argv);
+    char *argv[] = {"cp", "-r", "./FILM/", "./Fylm", NULL};
+    execv("/bin/cp", argv);
 }
 
 void moveMusik()
 {
-    char *argv[] = {"mv", "-T", "./MUSIK", "./Musyik", NULL};
-    execv("/bin/mv", argv);
+    char *argv[] = {"cp", "-r", "./MUSIK/", "./Musyik", NULL};
+    execv("/bin/cp", argv);
 }
 
 void movePhoto()
@@ -324,27 +336,21 @@ void movePhoto()
     execvp("cp", &globbuf.gl_pathv[0]); 
 }
 
-void delZipFilm()
-{
-    char *argv[] = {"rm", "-r", "./Film_for_Stevany.zip", NULL};
-    execv("/bin/rm", argv);
-}
-
-void delZipMusik()
-{
-    char *argv[] = {"rm", "-r", "./Musik_for_Stevany.zip", NULL};
-    execv("/bin/rm", argv);
-}
-
-void delZipPhoto()
-{
-    char *argv[] = {"rm", "-r", "./Photo_for_Stevany.zip", NULL};
-    execv("/bin/rm", argv);
-}
-
 void delFoto()
 {
     char *argv[] = {"rm", "-r", "FOTO", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delMusik()
+{
+    char *argv[] = {"rm", "-r", "MUSIK", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delFilm()
+{
+    char *argv[] = {"rm", "-r", "FILM", NULL};
     execv("/bin/rm", argv);
 }
 
@@ -352,4 +358,22 @@ void ngezip()
 {
     char *argv[] = {"zip", "-r", "Lopyu_Stevany.zip", "Fylm", "Musyik", "Pyoto", NULL};
     execv("/bin/zip", argv);
+}
+
+void delPyoto()
+{
+    char *argv[] = {"rm", "-r", "Pyoto", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delMusyik()
+{
+    char *argv[] = {"rm", "-r", "Musyik", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delFylm()
+{
+    char *argv[] = {"rm", "-r", "Fylm", NULL};
+    execv("/bin/rm", argv);
 }
