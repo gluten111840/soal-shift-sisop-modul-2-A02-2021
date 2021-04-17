@@ -8,9 +8,10 @@
 #include <syslog.h>
 #include <string.h>
 #include <wait.h>
-#include <glob.h>
 #include <time.h>
+#include <dirent.h>
 
+void jalaninYak();
 void donlotDanBuatFolder();
 void unzipDuls();
 void terusMove();
@@ -36,6 +37,54 @@ void bikinZip();
 void ngezip();
 
 int main()
+{
+    /* Our process ID and Session ID */
+    pid_t pid, sid;
+        
+    /* Fork off the parent process */
+    pid = fork();
+    if (pid < 0) {
+        exit(EXIT_FAILURE);
+    }
+    /* If we got a good PID, then
+       we can exit the parent process. */
+    if (pid > 0) {
+        exit(EXIT_SUCCESS);
+    }
+                
+    /* Open any logs here */        
+                
+    /* Create a new SID for the child process */
+    sid = setsid();
+    if (sid < 0) {
+        /* Log the failure */
+        exit(EXIT_FAILURE);
+    }
+        
+    /* Change the current working directory */
+    chdir("home/bayuekap/Documents/modul2/soalshift/");
+    
+    /* Change the file mode mask */
+    umask(0); 
+
+    /* Close out the standard file descriptors */
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+        
+    /* Daemon-specific initialization goes here */
+        
+    /* The Big Loop */
+    while (1) {
+        jalaninYak();
+        sleep(30); /* wait 30 seconds */
+        break;
+    }
+   exit(EXIT_SUCCESS);
+        
+}
+
+void jalaninYak()
 {
     time_t rawtime;
     struct tm * timeinfo;
@@ -314,26 +363,87 @@ void unzipPhoto()
 
 void moveFilm()
 {
-    char *argv[] = {"cp", "-r", "./FILM/", "./Fylm", NULL};
-    execv("/bin/cp", argv);
+    DIR *dp;
+    struct dirent *ep;
+
+    dp = opendir("./FILM");
+
+    if (dp != NULL) {
+      while ((ep = readdir (dp))) {
+          if (strstr(ep->d_name,"mp4")) {
+            char temp[100] = "./FILM/";
+            char dest[100] = "./Fylm";
+            int status;
+            pid_t child_id = fork();
+
+            strcat(temp, ep->d_name);
+            
+            if (child_id == 0) {
+                char* argv[] = {"mv", temp, dest, NULL};
+                execv("/usr/bin/mv", argv);
+            }
+          }
+      }
+
+      (void) closedir (dp);
+    } else perror ("Couldn't open the directory");
 }
 
 void moveMusik()
 {
-    char *argv[] = {"cp", "-r", "./MUSIK/", "./Musyik", NULL};
-    execv("/bin/cp", argv);
+    DIR *dp;
+    struct dirent *ep;
+
+    dp = opendir("./MUSIK");
+
+    if (dp != NULL) {
+      while ((ep = readdir (dp))) {
+          if (strstr(ep->d_name,"mp3")) {
+            char temp[100] = "./MUSIK/";
+            char dest[100] = "./Musyik";
+            int status;
+            pid_t child_id = fork();
+
+            strcat(temp, ep->d_name);
+            
+            if (child_id == 0) {
+                char* argv[] = {"mv", temp, dest, NULL};
+                execv("/usr/bin/mv", argv);
+            }
+          }
+      }
+
+      (void) closedir (dp);
+    } else perror ("Couldn't open the directory");
 }
 
 void movePhoto()
 {            
-    glob_t globbuf;
+    DIR *dp;
+    struct dirent *ep;
 
-    globbuf.gl_offs = 2;
-    glob("./FOTO/*.jpg", GLOB_DOOFFS, NULL, &globbuf);
-    glob("./Pyoto", GLOB_DOOFFS | GLOB_APPEND, NULL, &globbuf);
-    globbuf.gl_pathv[0] = "cp";
-    globbuf.gl_pathv[1] = "-r";
-    execvp("cp", &globbuf.gl_pathv[0]); 
+    dp = opendir("./FOTO");
+
+    if (dp != NULL) {
+      while ((ep = readdir (dp))) {
+          //mv source destinasi
+          if (strstr(ep->d_name,"jpg")) {
+            char temp[100] = "./FOTO/";
+            char dest[100] = "./Pyoto";
+            int status;
+            pid_t child_id = fork();
+
+            strcat(temp, ep->d_name);
+            
+            if (child_id == 0) {
+                char* argv[] = {"mv", temp, dest, NULL};
+                execv("/usr/bin/mv", argv);
+            }
+          }
+      }
+
+      (void) closedir (dp);
+    } else perror ("Couldn't open the directory");
 }
 
 void delFoto()
