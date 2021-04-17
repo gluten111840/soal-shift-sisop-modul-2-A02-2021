@@ -9,9 +9,9 @@
 #include <string.h>
 #include <time.h>
 
-#define MKDIR_SLEEP 10
+#define MKDIR_SLEEP 40
 #define IMAGE_DOWNLOAD_SLEEP 5
-#define IMAGE_PER_FOLDER 5
+#define IMAGE_PER_FOLDER 10
 
 #define OUTPUTDIR "/home/ananda/Documents/output"
 
@@ -146,13 +146,13 @@ int main(int argc, char *argv[]) {
             char zipName[50];
             sprintf(zipName, "%s.zip", folderTime);
             
-            char *args[] = {"zip", "-rm", zipName, folderTime};
+            char *args[] = {"zip", "-rm", zipName, folderTime, NULL};
             execv("/usr/bin/zip", args);
         }
 
         sleep(MKDIR_SLEEP);
     }
 
-    char *args[] = {"rm", "killer.sh"};
+    char *args[] = {"rm", "killer.sh", NULL};
     execv("/usr/bin/rm", args);
 }
