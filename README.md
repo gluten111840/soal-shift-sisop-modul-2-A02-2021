@@ -130,10 +130,69 @@ Ranora adalah mahasiswa Teknik Informatika yang saat ini sedang menjalani magang
 ### 3a
 **Soal**</br>
 Ranora harus membuat sebuah program C yang dimana setiap 40 detik membuat sebuah direktori dengan nama sesuai timestamp `[YYYY-mm-dd_HH:ii:ss].`
-</br>
+</br>  
 
 **Penjelasan**</br>
+Pertama untuk mempermudah mendapatkan waktu saat folder dibuat, saya mendefinisikan terlebih dahulu sebuah fungsi `getTime` untuk mendapatkan waktu saat ini.
+```c
+char *getTime() {
+    time_t _time;
+    struct tm *currTime;
 
+    char *formattedTime = malloc(40 * sizeof(char));
+
+    // Get current time 
+    time(&_time);
+    currTime = localtime(&_time);
+    strftime(formattedTime, 40, "%Y-%m-%d_%H:%M:%S", currTime);
+
+    return formattedTime;
+}
+```
+</br>
+
+Setelah membuat fungsi untuk mendapatkan waktu, saya juga membuat fungsi `makeDir` untuk membuat direktori dengan *path* sebagai parameter fungsi.
+```c
+void makeDir(char *folderTime) {
+
+    printf("LOG: Making directory %s\n", folderTime);
+
+    // Fork to make directory
+    pid_t mkdirID = fork();
+
+    if(mkdirID == 0) {
+        char *args[] = {"mkdir", folderTime, NULL};
+        execv("/bin/mkdir", args);
+    }
+}
+```
+</br>
+
+Setelah kedua fungsi diatas selesai, untuk dapat membuat direktori, pada fungsi `main` perlu dipanggil kedua fungsi diatas.
+```c
+#define OUTPUTDIR "/home/ananda/Documents/output"
+
+int main(int argc, char *argv[]) {
+
+    if ((chdir(OUTPUTDIR)) < 0) {
+        exit(EXIT_FAILURE);
+    }
+    ...
+    while(1) {
+        ...
+        char *folderTime;
+
+        folderTime = getTime();
+
+        makeDir(folderTime);
+        ...
+    }
+    ...
+}
+
+Note:
+(...) bagian kode tidak ditunjukkan untuk mempersingkat
+```
 </br>
 
 ### 3b
@@ -142,7 +201,96 @@ Setiap direktori yang sudah dibuat diisi dengan 10 gambar yang didownload dari `
 </br>
 
 **Penjelasan**</br>
+Karena setiap folder memungkinkan untuk *overlapping download*, maka diperlukan *child process* untuk setiap folder agar setiap folder dapat melakukan *download* sendiri. Setelah itu *while loop* di-*sleep* selama 40 detik sebelum melakukan *fork* kembali. Di dalam *child process* dilakukan *for loop* sebanyak 10 kali, dan untuk setiap *for* di-*sleep* 5 detik. Selain itu setiap process *download* juga perlu di-*fork*.
+```c
+#define MKDIR_SLEEP 40
+#define IMAGE_DOWNLOAD_SLEEP 5
+#define IMAGE_PER_FOLDER 10
 
+#define OUTPUTDIR "/home/ananda/Documents/output"
+
+int main(int argc, char *argv[]) {
+
+    if ((chdir(OUTPUTDIR)) < 0) {
+        exit(EXIT_FAILURE);
+    }
+    ...
+    while(1) {
+        ...
+        char *folderTime;
+
+        folderTime = getTime();
+
+        makeDir(folderTime);
+
+        // Fork to download image
+        pid_t downloaderID = fork();
+
+        if(downloaderID == 0) {
+
+            for(int i = 0; i < IMAGE_PER_FOLDER; i++) {
+                pid_t downloadID = fork();
+
+                if(downloadID == 0) {
+                    ...
+                }
+
+                sleep(IMAGE_DOWNLOAD_SLEEP);
+            }
+            ...
+        }
+        sleep(MKDIR_SLEEP);
+    }
+}
+
+Note:
+(...) bagian kode tidak ditunjukkan untuk mempersingkat
+```
+</br>
+
+Kemudian *concatenate* hasil dari `(n%1000)+50` dalam url. Selain itu juga kita menggunakan fungsi `getTime` yang di-*assign* ke `downloadTime` untuk merename file *download* nantinya.
+```c
+#define MKDIR_SLEEP 40
+#define IMAGE_DOWNLOAD_SLEEP 5
+#define IMAGE_PER_FOLDER 10
+
+#define OUTPUTDIR "/home/ananda/Documents/output"
+
+int main(int argc, char *argv[]) {
+
+    if ((chdir(OUTPUTDIR)) < 0) {
+        exit(EXIT_FAILURE);
+    }
+    ...
+    while(1) {
+        time_t _time;
+        struct tm *currTime;
+        ...
+            for(int i = 0; i < IMAGE_PER_FOLDER; i++) {
+                pid_t downloadID = fork();
+
+                if(downloadID == 0) {
+                    char *downloadTime;
+                    char folderPath[100], url[50];
+                    
+                    downloadTime = getTime();
+
+                    sprintf(folderPath, "./%s/%s.jpg", folderTime, downloadTime);
+                    sprintf(url, "https://picsum.photos/%ld", (_time%1000)+50);
+
+                    char *args[] = {"wget", "-q", url, "-O", folderPath, NULL};
+                    execv("/usr/bin/wget", args);
+                }
+
+                sleep(IMAGE_DOWNLOAD_SLEEP);
+            }
+        ...
+    }
+}
+
+Note:
+(...) bagian kode tidak ditunjukkan untuk mempersingkat
+```
 </br>
 
 ### 3c
@@ -151,7 +299,74 @@ Setelah direktori telah terisi dengan 10 gambar, program tersebut akan membuat s
 </br>
 
 **Penjelasan**</br>
+Pertama, harus dibuat fungsi untuk *Caesar Cipher*. Nantinya string hasil *Caesar Cipher* akan di-*return* melalui argumennya.
+```c
+void cipherAlg(char str[], int shift) {
+    int stringLen = strlen(str);
 
+    if(shift != 0) {
+        for(int i = 0; i < stringLen; i++) {
+            if(str[i] >= 'A' && str[i] <= 'Z') {
+                str[i] = 'A' + ((str[i] - 'A' + shift) % 26);
+            } else if(str[i] >= 'a' && str[i] <= 'z') {
+                str[i] = 'a' + ((str[i] - 'a' + shift) % 26);
+            }
+        }
+    }
+}
+```
+</br>
+
+Setelah fungsi tersebut didefinisikan, kita dapat menggunakannya dalam fungsi `main`. Untuk *zip* folder yang sudah selesai melakukan download, dapat digunakan command `zip` dengan *option* `-rm` untuk melakukan *zip* semua file dalam folder tersebut, serta menghapus file original setelah file selesai di-*zip*.
+```c
+#define MKDIR_SLEEP 40
+#define IMAGE_DOWNLOAD_SLEEP 5
+#define IMAGE_PER_FOLDER 10
+
+#define OUTPUTDIR "/home/ananda/Documents/output"
+
+int main(int argc, char *argv[]) {
+
+    if ((chdir(OUTPUTDIR)) < 0) {
+        exit(EXIT_FAILURE);
+    }
+    ...
+    while(1) {
+        ...
+        pid_t downloaderID = fork();
+
+        if(downloaderID == 0) {
+            ...
+
+            // status.txt file making
+            char statusPath[50];
+            sprintf(statusPath, "./%s/status.txt", folderTime);
+            FILE *success;
+            success = fopen(statusPath, "w+");
+            
+            char downloadMsg[] = "Download Success";
+            cipherAlg(downloadMsg, 5);
+
+            fprintf(success, "%s\n", downloadMsg);
+            fflush(success);
+
+            fclose(success);
+
+            // Zipping
+            char zipName[50];
+            sprintf(zipName, "%s.zip", folderTime);
+            
+            char *args[] = {"zip", "-rm", zipName, folderTime, NULL};
+            execv("/usr/bin/zip", args);
+        }
+
+        sleep(MKDIR_SLEEP);
+    }
+}
+
+Note:
+(...) bagian kode tidak ditunjukkan untuk mempersingkat
+```
 </br>
 
 ### 3d
@@ -160,7 +375,30 @@ Untuk mempermudah pengendalian program, pembimbing magang Ranora ingin program t
 </br>
 
 **Penjelasan**</br>
+Untuk membuat "`killer`" program dibuat fungsi `makeKiller`, namun untuk snippet kode berikut sudah termasuk jawaban untuk (3e). Untuk dapat membunuh semua proses yang berhubungan dengan soal 3 saya menggunakan command `pkill -f soal3` dan untuk membunuh *parent process* menggunakan `kill -9 <pid>`. Serta untuk membuat program dapat menghapus dirinya sendiri, digunakan command `rm $0` karena variabel `$0` merujuk pada dirinya sendiri. Untuk membuat **program bash**, dilakukan `fopen` dengan nama file `killer.sh` kemudian dimasukkan command bersangkutan.
+```c
+void makeKiller(int mode, pid_t pid) {
+    FILE *killer;
+    killer = fopen("killer.sh", "w");
 
+    if(mode == 1) {
+        char *code = "#!/bin/bash\n\n"
+                    "pkill -f \"./soal3\"\n"
+                    "rm $0\n";
+        
+        fprintf(killer, "%s", code);
+    } else if(mode == 2) {
+        char *code = "#!/bin/bash\n\n"
+                    "kill -9 %d\n"
+                    "rm $0\n";
+        
+        fprintf(killer, code, pid);
+    }
+
+    fflush(killer);
+    fclose(killer);
+}
+```
 </br>
 
 ### 3e
@@ -169,5 +407,65 @@ Pembimbing magang Ranora juga ingin nantinya program utama yang dibuat Ranora da
 </br>
 
 **Penjelasan**</br>
+Untuk dapat mengecek apakah argumen yang dimasukkan adalah `-z` atau `-x` digunakan `strcmp(argv[1], "-z") || strcmp(argv[1], "-x")`. Setelah didapatkan argumen yang dimasukkan, mode diset sesuai dengan argumen yang di-*passing*. Mode adalah sebagai berikut:
+- Mode 1 = `-z` (*Force close* program)
+- Mode 2 = `-x` (*Kill parent* program)
+```c
+int main(int argc, char *argv[]) {
+    int mode;
 
+    if ((chdir(OUTPUTDIR)) < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    if(argc > 1) {
+        if(strcmp(argv[1], "-z") == 0) {
+            mode = 1;
+            makeKiller(mode, getpid());
+        } else if(strcmp(argv[1], "-x") == 0) {
+            mode = 2;
+            makeKiller(mode, getpid());
+        }
+    }
+    ...
+}
+
+Note:
+(...) bagian kode tidak ditunjukkan untuk mempersingkat
+```
 </br>
+
+Melanjutkan dari (3d), ketika mode = 1, maka script yang dibuat adalah sebagai berikut:
+```c
+void makeKiller(int mode, pid_t pid) {
+...
+    if(mode == 1) {
+        char *code = "#!/bin/bash\n\n"
+                    "pkill -f \"./soal3\"\n"
+                    "rm $0\n";
+        
+        fprintf(killer, "%s", code);
+    }
+...
+}
+
+Note:
+(...) bagian kode tidak ditunjukkan untuk mempersingkat
+```
+dan ketika mode = 2, yang di-*kill* adalah parent-nya. Sehingga semua child process dapat melanjutkan process yang sedang dijalankan hingga semuanya diselesaikan hingga akhirnya nanti exit.
+```c
+void makeKiller(int mode, pid_t pid) {
+...
+    else if(mode == 2) {
+        char *code = "#!/bin/bash\n\n"
+                    "kill -9 %d\n"
+                    "rm $0\n";
+        
+        fprintf(killer, code, pid);
+    }
+...
+}
+
+Note:
+(...) bagian kode tidak ditunjukkan untuk mempersingkat
+```
