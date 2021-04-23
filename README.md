@@ -18,22 +18,202 @@ Dikarenakan Stevany sangat menyukai huruf **Y**, Steven ingin nama folder-folder
 </br>
 
 **Penjelasan**</br>
+Pada soal 1 poin a, kita diminta untuk membuat tiga folder untuk menyimpan file-file yang akan didownload pada soal selanjutnya. Karena tidak diperbolehkan menggunakan fungsi mkdir() yang ada di bahasa C, maka kami menggunakan cara sebagai berikut.
+```C
+void donlotDanBuatFolder()
+{
+    pid_t buatFolder;
+    int waitt;
+    buatFolder = fork();
+    if(buatFolder < 0)
+        exit(EXIT_FAILURE);
+    if(buatFolder == 0)
+    {
+        makeFolder();
+    }
+    ...
+}
 
+void makeFolder()
+{
+    char *argv[] = {"mkdir", "-p", "Musyik", "Fylm", "Pyoto", NULL};
+    execv("/bin/mkdir", argv);
+}
+```
+Dikarenakan fungsi exec setelah mengeksekusi program langsung exit, maka menggunakan fork() agar semua bisa berjalan seperti program biasanya.
+
+```C
+void donlotDanBuatFolder()
+{
+    pid_t buatFolder;
+    int waitt;
+    buatFolder = fork();
+    if(buatFolder < 0)
+        exit(EXIT_FAILURE);
+    if(buatFolder == 0)
+    {
+        makeFolder();
+    }
+    ...
+}
+```
+Di dalam fungsi tersebut, fungsi ```makefolder()```, dipanggil di dalam child sehingga dijalankan terdahulu sebelum yang ada di dalam parent dijalankan.
+```C
+void makeFolder()
+{
+    char *argv[] = {"mkdir", "-p", "Musyik", "Fylm", "Pyoto", NULL};
+    execv("/bin/mkdir", argv);
+}
+```
+Execv digunakan untuk menjalankan perintah bahasa _shell_ di dalam bahasa C.
 </br>
 
 ### 1b
 **Soal**</br>
-Untuk musik Steven **mendownloadnya** dari link di bawah, film dari link di bawah lagi, dan foto dari link dibawah juga :).
+Untuk musik Steven **mendownloadnya** dari link di bawah, film dari link di bawah lagi, dan foto dari link dibawah juga :). \
+link download : \
+1. Film : https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download
+2. Musik : https://drive.google.com/uc?id=1ZG8nRBRPquhYXq_sISdsVcXx5VdEgi-J&export=download
+3. Foto : https://drive.google.com/uc?id=1FsrAzb9B5ixooGUs0dGiBr-rC7TS9wTD&export=download
 </br>
 
-**Penjelasan**</br>
+**Kode Program**
+```C
+void donlotDanBuatFolder()
+{
+    pid_t buatFolder;
+    int waitt;
+    buatFolder = fork();
+    if(buatFolder < 0)
+        exit(EXIT_FAILURE);
+    if(buatFolder == 0)
+    {
+        makeFolder();
+    }
+    else
+    {
+        while((wait(&waitt)) > 0);
+        pid_t donlotF;
+        int waitt1;
+        donlotF = fork();
+        if(donlotF < 0)
+            exit(EXIT_FAILURE);
+        if(donlotF == 0)
+            downloadFilm();
+        else
+        {
+            while((wait(&waitt1)) > 0);
+            pid_t donlotM;
+            int waitt2;
+            donlotM = fork();
+            if(donlotM < 0)
+                exit(EXIT_FAILURE);
+            if(donlotM == 0)
+                downloadMusik();
+            else
+            {
+                while((wait(&waitt2)) > 0);
+                downloadPhoto();
+            }
+        }
+    }
+}
 
+void downloadFilm()
+{
+    execl("/bin/wget", "wget", "--no-check-certificate", "https://drive.google.com/uc?id=1ktjGgDkL0nNpY-vT7rT7O6ZI47Ke9xcp&export=download", 
+            "-qO", "Film_for_Stevany.zip", (char *)NULL);
+}
+
+void downloadMusik()
+{
+    execl("/bin/wget", "wget", "--no-check-certificate", "https://drive.google.com/uc?id=1ZG8nRBRPquhYXq_sISdsVcXx5VdEgi-J&export=download", 
+            "-qO", "Musik_for_Stevany.zip", (char *)NULL);
+}
+
+void downloadPhoto()
+{  
+    execl("/bin/wget", "wget", "--no-check-certificate", "https://drive.google.com/uc?id=1FsrAzb9B5ixooGUs0dGiBr-rC7TS9wTD&export=download", 
+            "-qO", "Photo_for_Stevany.zip", (char *)NULL);
+}
+```
+**Penjelasan** \
+Untuk susunan pengerjaan, setiap fungsi untuk mendownload saya memasukkannya ke dalam parent setelah membuat folder yang di dalam parent tersebut, diinisialisasi child untuk mendownload film, di dalam parent-2nya diinisialisasi child lagi untuk mendownload musik dan parent terakhir digunakan untuk mendownload foto. Jadi proses berjalan secara bertahap atau tidak secara bersamaan dalam satu waktu.
 </br>
 
 ### 1c
 **Soal**</br>
 Steven tidak ingin isi folder yang dibuatnya berisikan zip, sehingga perlu **meng-extract-nya** setelah didownload.
 </br>
+
+**Kode Program**
+```C
+void jalaninYak()
+{
+    ...
+    else
+    {
+        while((wait(&status)) > 0);
+        unzipDuls();
+    }
+}
+
+void unzipDuls()
+{
+    pid_t unzipF;
+    int wait1;
+    unzipF = fork();
+    if(unzipF < 0)
+        exit(EXIT_FAILURE);
+    if(unzipF == 0)
+        unzipFilm();
+    else
+    {
+        while((wait(&wait1)) > 0);
+        pid_t unzipM;
+        int wait2;
+        unzipM = fork();
+        if(unzipM < 0)
+            exit(EXIT_FAILURE);
+        if(unzipM == 0)
+            unzipMusik();
+        else
+        {
+            while((wait(&wait2)) > 0);
+            pid_t unzipP;
+            int wait3;
+            unzipP = fork();
+            if(unzipP < 0)
+                exit(EXIT_FAILURE);
+            if(unzipP == 0)
+                unzipPhoto();
+            else
+            {
+                while((wait(&wait3)) > 0);
+                terusMove();
+            }
+        }
+    }
+}
+
+void unzipFilm()
+{
+    char *argv[] = {"unzip", "./Film_for_Stevany.zip", NULL};
+    execv("/bin/unzip", argv);
+}
+
+void unzipMusik()
+{
+    char *argv[] = {"unzip", "./Musik_for_Stevany.zip", NULL};
+    execv("/bin/unzip", argv);
+}
+
+void unzipPhoto()
+{
+    char *argv[] = {"unzip", "./Photo_for_Stevany.zip", NULL};
+    execv("/bin/unzip", argv);
+}
+```
 
 **Penjelasan**</br>
 
@@ -44,8 +224,135 @@ Steven tidak ingin isi folder yang dibuatnya berisikan zip, sehingga perlu **men
 **Memindahkannya** ke dalam folder yang telah dibuat (hanya file yang dimasukkan).
 </br>
 
-**Penjelasan**</br>
+**Kode Program**</br>
+```C
+void terusMove()
+{
+    pid_t moveF;
+    int film;
+    moveF = fork();
+    if(moveF < 0)
+        exit(EXIT_FAILURE);
+    if(moveF == 0)
+        moveFilm();
+    else
+    {
+        while((wait(&film)) > 0);
+        pid_t moveM;
+        int musik;
+        moveM = fork();
+        if(moveM < 0)
+            exit(EXIT_FAILURE);
+        if(moveM == 0)
+            moveMusik();
+        else
+        {
+            while((wait(&musik)) > 0);
+            pid_t moveP;
+            int photo;
+            moveP = fork();
+            if(moveP < 0)
+                exit(EXIT_FAILURE);
+            if(moveP == 0)
+                movePhoto();
+                        
+            else
+            {
+                while((wait(&photo)) > 0);
+                finishing();
+            }
+        }
+    }
+}
 
+void moveFilm()
+{
+    DIR *dp;
+    struct dirent *ep;
+
+    dp = opendir("./FILM");
+
+    if (dp != NULL) {
+      while ((ep = readdir (dp))) {
+          if (strstr(ep->d_name,"mp4")) {
+            char temp[100] = "./FILM/";
+            char dest[100] = "./Fylm";
+            int status;
+            pid_t child_id = fork();
+
+            strcat(temp, ep->d_name);
+            
+            if (child_id == 0) {
+                char* argv[] = {"mv", temp, dest, NULL};
+                execv("/usr/bin/mv", argv);
+            }
+          }
+      }
+
+      (void) closedir (dp);
+    } else perror ("Couldn't open the directory");
+}
+
+void moveMusik()
+{
+    DIR *dp;
+    struct dirent *ep;
+
+    dp = opendir("./MUSIK");
+
+    if (dp != NULL) {
+      while ((ep = readdir (dp))) {
+          if (strstr(ep->d_name,"mp3")) {
+            char temp[100] = "./MUSIK/";
+            char dest[100] = "./Musyik";
+            int status;
+            pid_t child_id = fork();
+
+            strcat(temp, ep->d_name);
+            
+            if (child_id == 0) {
+                char* argv[] = {"mv", temp, dest, NULL};
+                execv("/usr/bin/mv", argv);
+            }
+          }
+      }
+
+      (void) closedir (dp);
+    } else perror ("Couldn't open the directory");
+}
+
+void movePhoto()
+{            
+    DIR *dp;
+    struct dirent *ep;
+
+    dp = opendir("./FOTO");
+
+    if (dp != NULL) {
+      while ((ep = readdir (dp))) {
+          //mv source destinasi
+          if (strstr(ep->d_name,"jpg")) {
+            char temp[100] = "./FOTO/";
+            char dest[100] = "./Pyoto";
+            int status;
+            pid_t child_id = fork();
+
+            strcat(temp, ep->d_name);
+            
+            if (child_id == 0) {
+                char* argv[] = {"mv", temp, dest, NULL};
+                execv("/usr/bin/mv", argv);
+            }
+          }
+      }
+
+      (void) closedir (dp);
+    } else perror ("Couldn't open the directory");
+}
+```
+**Penjelasan**</br>
+Setelah proses pada poin D selesai, maka akan langsung berjalan proses memindahkan file-file yang ada dalam folder yang telah ter-unzip ke dalam folder yang telah dibuat pada poin A. Untuk direktori listing, saya menggunakan ```dirent```, sehingga dalam proses pemindahan file-filenya terjadi secara satu persatu. \
+ Khusus pemindahan file foto, kita hanya perlu memindahkan file-file yang berformat .jpg.
 </br>
 
 ### 1e
@@ -53,8 +360,88 @@ Steven tidak ingin isi folder yang dibuatnya berisikan zip, sehingga perlu **men
 Untuk memudahkan Steven, ia ingin semua hal di atas berjalan **otomatis** 6 jam sebelum waktu ulang tahun Stevany.
 </br>
 
-**Penjelasan**</br>
+**Kode Program**</br>
+```C
+int main()
+{
+    /* Our process ID and Session ID */
+    pid_t pid, sid;
+        
+    /* Fork off the parent process */
+    pid = fork();
+    if (pid < 0) {
+        exit(EXIT_FAILURE);
+    }
+    /* If we got a good PID, then
+       we can exit the parent process. */
+    if (pid > 0) {
+        exit(EXIT_SUCCESS);
+    }
+                
+    /* Open any logs here */        
+                
+    /* Create a new SID for the child process */
+    sid = setsid();
+    if (sid < 0) {
+        /* Log the failure */
+        exit(EXIT_FAILURE);
+    }
+        
+    /* Change the current working directory */
+    chdir("home/bayuekap/Documents/modul2/soalshift/");
+    
+    /* Change the file mode mask */
+    umask(0); 
 
+    /* Close out the standard file descriptors */
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+        
+    /* Daemon-specific initialization goes here */
+        
+    /* The Big Loop */
+    while (1) {
+        jalaninYak();
+        sleep(10); /* wait 10 seconds */
+        break;
+    }
+   exit(EXIT_SUCCESS);
+        
+}
+
+void jalaninYak()
+{
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
+
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
+    while(strcmp(buffer, "04-09_16:22") != 0)
+    {
+        sleep(2);
+        rawtime = time(NULL);
+        timeinfo = localtime(&rawtime);
+        strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
+    }
+    pid_t child_id;
+    int status;
+    child_id = fork();
+    if(child_id == 0)
+        donlotDanBuatFolder();
+    else
+    {
+        while((wait(&status)) > 0);
+        unzipDuls();
+    }
+}
+```
+
+**Penjelasan**</br>
+Soal meminta kita untuk berjalan secara otomatis di background, oleh karena itu, kita menggunakan Daemon. \
+Untuk menyetel agar program berjalan pada waktu tertentu, maka digunakan header ```time.h``` dan untuk mengaturnya, kita mengubah format current date menjadi string yang nanti akan dibandingkan setiap 2 detik sekali apakah sudah memenuhi jam yang diinginkan apa belum, jika belum, maka program akan terus menyimpan waktu ke dalam sebuah variabel, dan jika sudah memenuhi, program akan menjalankan proses selanjutnya. Pada poin soal ini adalah 6 jam sebelum pukul 22.22 pada tanggal 9 April, sehingga terjadi pukul 16.22
 </br>
 
 ### 1f
@@ -62,7 +449,143 @@ Untuk memudahkan Steven, ia ingin semua hal di atas berjalan **otomatis** 6 jam 
 Setelah itu pada **waktu** ulang tahunnya Stevany, semua folder akan di zip dengan nama **Lopyu_Stevany.zip** dan semua folder akan di **delete**(sehingga hanya menyisakan .zip).
 </br>
 
+**Kode Program**</br>
+```C
+void finishing()
+{
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
+
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
+    while(strcmp(buffer, "04-09_22:22") != 0)
+    {
+        sleep(2);
+        rawtime = time(NULL);
+        timeinfo = localtime(&rawtime);
+        strftime (buffer, 80,"%m-%d_%H:%M",timeinfo);
+    }
+    pid_t tutup1;
+    int yah1;
+    tutup1 = fork();
+    if(tutup1 < 0)
+        exit(EXIT_FAILURE);
+    if(tutup1 == 0)
+        delFilm();
+    else
+    {
+        while((wait(&yah1)) > 0);
+        pid_t tutup2;
+        int yah2;
+        tutup2 = fork();
+        if(tutup2 < 0)
+            exit(EXIT_FAILURE);
+        if(tutup2 == 0)
+            delFoto();
+        else
+        {
+            while((wait(&yah2)) > 0);
+            pid_t tutup3;
+            int yah3;
+            tutup3 = fork();
+            if(tutup3 < 0)
+                exit(EXIT_FAILURE);
+            if(tutup3 == 0)
+                delMusik();
+            else
+            {
+                while((wait(&yah3)) > 0);
+                bikinZip();
+            }
+        }
+    }
+}
+
+void bikinZip()
+{
+    pid_t zi1;
+    int yi1;
+    zi1 = fork();
+    if(zi1 < 0)
+        exit(EXIT_FAILURE);
+    if(zi1 == 0)
+        ngezip();
+    else
+    {
+        while((wait(&yi1)) > 0);
+        pid_t zi2;
+        int yi2;
+        zi2 = fork();
+        if(zi2 < 0)
+            exit(EXIT_FAILURE);
+        if(zi2 == 0)
+            delFylm();
+        else
+        {
+            while((wait(&yi2)) > 0);
+            pid_t zi3;
+            int yi3;
+            zi3 = fork();
+            if(zi3 < 0)
+                exit(EXIT_FAILURE);
+            if(zi3 == 0)
+                delMusyik();
+            else
+            {
+                while((wait(&yi3)) > 0);
+                delPyoto();
+            }
+        }
+    }
+}
+
+void delFoto()
+{
+    char *argv[] = {"rm", "-r", "FOTO", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delMusik()
+{
+    char *argv[] = {"rm", "-r", "MUSIK", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delFilm()
+{
+    char *argv[] = {"rm", "-r", "FILM", NULL};
+    execv("/bin/rm", argv);
+}
+
+void ngezip()
+{
+    char *argv[] = {"zip", "-r", "Lopyu_Stevany.zip", "Fylm", "Musyik", "Pyoto", NULL};
+    execv("/bin/zip", argv);
+}
+
+void delPyoto()
+{
+    char *argv[] = {"rm", "-r", "Pyoto", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delMusyik()
+{
+    char *argv[] = {"rm", "-r", "Musyik", NULL};
+    execv("/bin/rm", argv);
+}
+
+void delFylm()
+{
+    char *argv[] = {"rm", "-r", "Fylm", NULL};
+    execv("/bin/rm", argv);
+}
+```
+
 **Penjelasan**</br>
+Untuk proses menjalankan pada waktu tertentu, sistemnya sama seperti pada poin E. Lalu untuk prosesnya secara bertahap juga, urutannya yaitu menghapus folder hasil unzip dari proses sebelumnya, kemudian meng-zip-kan folder "Musyik", "Pyoto", dan "Fylm" dengan format nama "Lopyu_Stevany.zip", lalu menghapus sisa folder yang ada di dalam direktori tersebut.
 
 </br>
 
