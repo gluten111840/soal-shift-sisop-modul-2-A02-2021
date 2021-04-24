@@ -585,7 +585,7 @@ void delFylm()
 ```
 
 **Penjelasan**</br>
-Untuk proses menjalankan pada waktu tertentu, sistemnya sama seperti pada poin E. Lalu untuk prosesnya secara bertahap juga, urutannya yaitu menghapus folder hasil unzip dari proses sebelumnya, kemudian meng-zip-kan folder "Musyik", "Pyoto", dan "Fylm" dengan format nama "Lopyu_Stevany.zip", lalu menghapus sisa folder yang ada di dalam direktori tersebut.
+Untuk proses menjalankan pada waktu tertentu, sistemnya sama seperti pada poin E, namun untuk waktunya diset pukul 22.22 pada tanggal yang sama. Lalu untuk prosesnya secara bertahap juga, urutannya yaitu menghapus folder hasil unzip dari proses sebelumnya, kemudian meng-zip-kan folder "Musyik", "Pyoto", dan "Fylm" dengan format nama "Lopyu_Stevany.zip", lalu menghapus sisa folder yang ada di dalam direktori tersebut.
 
 </br>
 
@@ -598,8 +598,74 @@ Loba bekerja di sebuah petshop terkenal, suatu saat dia mendapatkan zip yang ber
 Pertama-tama program perlu mengextract zip yang diberikan ke dalam folder “/home/[user]/modul2/petshop”. Karena bos Loba teledor, dalam zip tersebut bisa berisi folder-folder yang tidak penting, maka program harus bisa membedakan file dan folder sehingga dapat memproses file yang seharusnya dikerjakan dan menghapus folder-folder yang tidak dibutuhkan.
 </br>
 
-**Penjelasan**</br>
+**Kode Program**</br>
+```C
+#define PETSHOP_PATH "/home/ananda/modul2/petshop"
 
+void unzip(char *source, char *destination) {
+    int status;
+
+    printf("[!] UNZIPPING PETS.ZIP\n");
+    
+    pid_t unzipID = fork();
+
+    if(unzipID == 0) {
+        char *args[] = {"unzip", "-q", source, "-d", destination, NULL};
+        execv("/usr/bin/unzip", args);
+    }
+    
+    waitpid(unzipID, &status, 0);
+}
+
+void removeUnnecessaryFolder(char const *folderPath) {
+    int status;
+
+    struct dirent *item;
+    DIR *petFolder;
+
+    // Open folder
+    if((petFolder = opendir(folderPath)) != NULL) {
+
+        // Loops through the item entries in the folder
+        while((item = readdir(petFolder)) != NULL) {
+            if(strcmp(item->d_name, "..") && strcmp(item->d_name, ".")) {
+                if(item->d_type == DT_DIR) {
+                    char toRemovePath[512];
+                    sprintf(toRemovePath, "%s%s", folderPath, item->d_name);
+
+                    printf("[!] Removing %s Folder\n", item->d_name);
+
+                    pid_t removeFolderItem = fork();
+
+                    if(removeFolderItem == 0) {
+                        char *args[] = {"rm", "-rf", toRemovePath, NULL};
+                        execv("/bin/rm", args);
+                    }
+
+                    waitpid(removeFolderItem, &status, 0);
+                }
+            } else {
+                continue;
+            }
+        }
+    }
+}
+
+int main() {
+    int status;
+    char petshopFolder[512];
+
+    sprintf(petshopFolder, "%s/", PETSHOP_PATH);
+
+    unzip("./pets.zip", PETSHOP_PATH);
+
+    removeUnnecessaryFolder(petshopFolder);
+    ...
+}
+```
+
+**Penjelasan**</br>
+Pada soal 2 poin A, kita diminta untuk meng-extract semua file yang ada di dalam pets.zip ke dalam sebuah folder yang memiliki path "/home/[user]/modul2/petshop", namun karena ada beberapa folder yang tidak diperlukan, sehingga folder-folder tersebut perlu dihapus. Untuk menghapus folder-folder tersebut, kita menggunakan header "dirent.h" untuk melakukan listing directory yang ada di dalam path tersebut. Untuk menentukan apakah file itu merupakan sebuah directory/folder, maka kita membandingkan string filenya dengan "..". Lalu kita bisa langsung menghapusnya.
 </br>
 
 ### 2b
@@ -608,8 +674,75 @@ Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus mem
 *Contoh: Jenis peliharaan kucing akan disimpan dalam “`/petshop/cat`”, jenis peliharaan kura-kura akan disimpan dalam “`/petshop/turtle`”.*
 </br>
 
-**Penjelasan**</br>
+**Kode Program**</br>
+```C
+void makeDir(char *path) {
+    int status;
 
+    pid_t makeDir = fork();
+    if(makeDir == 0) {
+        char *args[] = {"mkdir", "-p", path, NULL};
+        execv("/usr/bin/mkdir", args);
+    }
+    waitpid(makeDir, &status, 0);
+}
+
+void categorizePhoto(char *sourcePhoto, char *filename) {
+    int status;
+    char *jenis, *nama, *umur;
+    char pathJenis[512], pathKeterangan[512], newFilename[512];
+
+    jenis = strtok(filename, ";");
+    ...
+
+    sprintf(pathJenis, "%s/%s", PETSHOP_PATH, jenis);
+    ...
+
+    // Make the jenis directory
+    makeDir(pathJenis);
+}
+
+void categorize(char const * folderPath) {
+    int status;
+
+    struct dirent *item;
+    DIR *petFolder;
+
+    // Open folder
+    if((petFolder = opendir(folderPath)) != NULL) {
+
+        // Loops through the item entries in the folder
+        int loop = 0;
+        while((item = readdir(petFolder)) != NULL) {
+            if(strcmp(item->d_name, "..") && strcmp(item->d_name, ".")) {
+                if(item->d_type == DT_REG) {
+                    char fileName[256], sourcePath[512];
+
+                    sprintf(sourcePath, "%s/%s", PETSHOP_PATH, item->d_name);
+
+                    printf("[!] Processing >> %s <<\n", sourcePath);
+
+                    sprintf(fileName, "%s", item->d_name);
+                    fileName[strlen(fileName)-4] = '\0';
+
+                    char *leftPet = strtok(fileName, "_");
+                    char *rightPet = strtok(NULL, "_");
+
+                    if(rightPet != NULL) {
+                        categorizePhoto(sourcePath, rightPet);
+                    }
+
+                    categorizePhoto(sourcePath, leftPet);
+                    ...
+                }
+            }
+        }
+    }
+}
+```
+
+**Penjelasan**</br>
+Pada soal 2 poin B ini, kita diminta untuk membuat folder yang mengategorikan file-file yang telah diextract sebelumnya. Untuk melakukannya, kita harus membaca semua file yang ada di path tersebut dengan menggunakan directory listing yang menggunakan header "dirent.h", .... 
 </br>
 
 ### 2c
@@ -618,8 +751,36 @@ Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke fold
 *Contoh: “`/petshop/cat/joni.jpg`”*. 
 </br>
 
-**Penjelasan**</br>
+**Kode Program**</br>
+```C
+void categorizePhoto(char *sourcePhoto, char *filename) {
+    int status;
+    char *jenis, *nama, *umur;
+    char pathJenis[512], pathKeterangan[512], newFilename[512];
 
+    jenis = strtok(filename, ";");
+    nama = strtok(NULL, ";");
+    umur = strtok(NULL, ";");
+
+    sprintf(pathJenis, "%s/%s", PETSHOP_PATH, jenis);
+    sprintf(pathKeterangan, "%s/%s/keterangan.txt", PETSHOP_PATH, jenis);
+    sprintf(newFilename, "%s/%s/%s.jpg", PETSHOP_PATH, jenis, nama);
+
+    // Make the jenis directory
+    makeDir(pathJenis);
+
+    // Copy the original file to the directory and rename it to <nama>.jpg
+    pid_t copyFile = fork();
+    if(copyFile == 0) {
+        char *args[] = {"cp", sourcePhoto, newFilename, NULL};
+        execv("/usr/bin/cp", args);
+    }
+    waitpid(copyFile, &status, 0);
+    ...
+}
+```
+**Penjelasan**</br>
+Setelah kita membuat direktori pada poin B, sekarang kita akan memindahkan file dan me-rename file-filenya berdasarkan nama yang telah ditentukan dari yang telah diextract pada poin A. Kita menginisialisasi nama file baru dengan cara menambahkannya pada suatu variabel yang dipassing dari awal, dan dipasangkan ke file baru pada saat proses peng-copy-an file sedang dilakukan.
 </br>
 
 ### 2d
@@ -628,6 +789,10 @@ Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus 
 *Contoh: foto dengan nama “`dog;baro;1_cat;joni;2.jpg`” dipindah ke folder “`/petshop/cat/joni.jpg`” dan “`/petshop/dog/baro.jpg`”.*
 </br>
 
+**Kode Program**</br>
+```C
+
+```
 **Penjelasan**</br>
 
 </br>
