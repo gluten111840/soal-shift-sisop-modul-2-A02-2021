@@ -906,6 +906,7 @@ void categorizePhoto(char *sourcePhoto, char *filename) {
 
 **Output**</br>
 ![image](https://user-images.githubusercontent.com/57354564/115991709-4ef5b800-a5fc-11eb-8989-364ca629ac90.png)
+> Isi folder setiap pet dengan keterangan.txt, serta isi dari keterangan.txt cat sebagai contoh.
 
 ## Soal 3
 ### Narasi Soal
@@ -1187,9 +1188,6 @@ void makeKiller(int mode, pid_t pid) {
 }
 ```
 </br>
-
-**Output**</br>
-![Hasil 1B](./img/soal1B.PNG)
 
 ### 3e
 **Soal**</br>
