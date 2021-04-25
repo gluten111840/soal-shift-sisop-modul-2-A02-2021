@@ -460,7 +460,7 @@ Untuk menyetel agar program berjalan pada waktu tertentu, maka digunakan header 
 </br>
 
 **Output**</br>
-![Hasil 1E](./img/soal1E.png)
+![Hasil 1E](./img/soal1E.PNG)
 
 ### 1f
 **Soal**</br>
