@@ -978,9 +978,6 @@ Note:
 ```
 </br>
 
-**Output**</br>
-![Hasil 1B](./img/soal1B.PNG)
-
 ### 3b
 **Soal**</br>
 Setiap direktori yang sudah dibuat diisi dengan 10 gambar yang didownload dari `https://picsum.photos/`, dimana setiap gambar akan didownload setiap 5 detik. Setiap gambar yang didownload akan diberi nama dengan format timestamp `[YYYY-mm-dd_HH:ii:ss]` dan gambar tersebut berbentuk persegi dengan ukuran `(n%1000) + 50` pixel dimana n adalah detik ***Epoch Unix***.
@@ -1079,9 +1076,6 @@ Note:
 ```
 </br>
 
-**Output**</br>
-![Hasil 1B](./img/soal1B.PNG)
-
 ### 3c
 **Soal**</br>
 Setelah direktori telah terisi dengan 10 gambar, program tersebut akan membuat sebuah file “`status.txt`”, dimana didalamnya berisi pesan “`Download Success`” yang terenkripsi dengan teknik Caesar Cipher dan dengan shift 5. Caesar Cipher adalah Teknik enkripsi sederhana yang dimana dapat melakukan enkripsi string sesuai dengan shift/key yang kita tentukan. Misal huruf “A” akan dienkripsi dengan shift 4 maka akan menjadi “E”. Karena Ranora orangnya perfeksionis dan rapi, dia ingin setelah file tersebut dibuat, direktori akan di zip dan direktori akan didelete, sehingga menyisakan hanya file zip saja.
@@ -1158,8 +1152,9 @@ Note:
 ```
 </br>
 
-**Output**</br>
-![Hasil 1B](./img/soal1B.PNG)
+**Output poin A, B, dan C**</br>
+![image](https://user-images.githubusercontent.com/57354564/115991918-713c0580-a5fd-11eb-81cc-10cf12e270f5.png)
+>Berhasil membuat folder setiap 40 detik. Melakukan download photo setiap 5 detik (window kanan). Membuat status.txt yang berisi hasil Caesar Cipher. Serta melakukan zip dan menghapus folder originalnya.
 
 ### 3d
 **Soal**</br>
@@ -1265,5 +1260,9 @@ Note:
 (...) bagian kode tidak ditunjukkan untuk mempersingkat
 ```
 
-**Output**</br>
-![Hasil 1B](./img/soal1B.PNG)
+**Output poin D dan E**</br>
+![image](https://user-images.githubusercontent.com/57354564/115992013-f8897900-a5fd-11eb-8c61-57f49319a2d2.png)
+> Program dijalankan dengan mode `-z` serta killer.sh yang dihasilkan.
+![image](https://user-images.githubusercontent.com/57354564/115992062-37b7ca00-a5fe-11eb-8f0c-9b5216a2157d.png)
+> Program dijalankan dengan mode `-x`, killer.sh yang dihasilkan mengandung parent process id.
+
