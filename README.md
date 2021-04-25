@@ -617,10 +617,10 @@ Loba bekerja di sebuah petshop terkenal, suatu saat dia mendapatkan zip yang ber
 ### 2a
 **Soal**</br>
 Pertama-tama program perlu mengextract zip yang diberikan ke dalam folder “/home/[user]/modul2/petshop”. Karena bos Loba teledor, dalam zip tersebut bisa berisi folder-folder yang tidak penting, maka program harus bisa membedakan file dan folder sehingga dapat memproses file yang seharusnya dikerjakan dan menghapus folder-folder yang tidak dibutuhkan.
-</br>
 
-**Kode Program**</br>
-```C
+**Penjelasan**</br>
+Pertama diminta untuk meng-extract semua file yang ada di dalam pets.zip ke dalam sebuah folder yang memiliki path "/home/[user]/modul2/petshop", namun karena ada beberapa folder yang tidak diperlukan, sehingga folder-folder tersebut perlu dihapus. Untuk melakukan unzip, cukup menggunakan command `unzip` dengan option `-d` untuk mengganti *destination directory* dari unzip ini.
+```c
 #define PETSHOP_PATH "/home/ananda/modul2/petshop"
 
 void unzip(char *source, char *destination) {
@@ -637,7 +637,9 @@ void unzip(char *source, char *destination) {
     
     waitpid(unzipID, &status, 0);
 }
-
+```
+ Untuk menghapus folder-folder tersebut, kita menggunakan header `dirent.h` untuk melakukan *listing directory* yang ada di dalam path tersebut. Untuk menentukan apakah file itu merupakan sebuah directory/folder, maka kita membandingkan string filenya dengan `..` dan `.`. Kemudian dicek tipe dari file bersangkutan. Jika tipenya adalah `DT_DIR` maka kita bisa langsung menghapusnya dengan menggunakan command `rm` dengan option `-rf` untuk menghapus dengan mode **force**.
+```c
 void removeUnnecessaryFolder(char const *folderPath) {
     int status;
 
@@ -671,7 +673,9 @@ void removeUnnecessaryFolder(char const *folderPath) {
         }
     }
 }
-
+```
+Kedua fungsi diatas kemudian dipanggil pada fungsi `main` untuk dapat menggunakannya sebagai berikut:
+```c
 int main() {
     int status;
     char petshopFolder[512];
@@ -684,9 +688,6 @@ int main() {
     ...
 }
 ```
-
-**Penjelasan**</br>
-Pada soal 2 poin A, kita diminta untuk meng-extract semua file yang ada di dalam pets.zip ke dalam sebuah folder yang memiliki path "/home/[user]/modul2/petshop", namun karena ada beberapa folder yang tidak diperlukan, sehingga folder-folder tersebut perlu dihapus. Untuk menghapus folder-folder tersebut, kita menggunakan header "dirent.h" untuk melakukan listing directory yang ada di dalam path tersebut. Untuk menentukan apakah file itu merupakan sebuah directory/folder, maka kita membandingkan string filenya dengan "..". Lalu kita bisa langsung menghapusnya.
 </br>
 
 ### 2b
@@ -695,8 +696,10 @@ Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus mem
 *Contoh: Jenis peliharaan kucing akan disimpan dalam “`/petshop/cat`”, jenis peliharaan kura-kura akan disimpan dalam “`/petshop/turtle`”.*
 </br>
 
-**Kode Program**</br>
-```C
+**Penjelasan**</br>
+Pada poin ini, kita diminta untuk membuat folder yang mengategorikan file-file yang telah diextract sebelumnya. Untuk melakukannya, kita harus membaca semua file yang ada di path tersebut dengan menggunakan directory listing yang menggunakan header `dirent.h`, kemudian menggunakan fungsi `strtok` dari `string.h` untuk memisahkan antara **jenis**, **nama**, dan **usia** dari foto. Setelah dipisahkan, kita ambil jenis dari pet tersebut yang kemudian kita buat *directory* sesuai dengan jenisnya.
+
+```c
 void makeDir(char *path) {
     int status;
 
@@ -761,9 +764,6 @@ void categorize(char const * folderPath) {
     }
 }
 ```
-
-**Penjelasan**</br>
-Pada soal 2 poin B ini, kita diminta untuk membuat folder yang mengategorikan file-file yang telah diextract sebelumnya. Untuk melakukannya, kita harus membaca semua file yang ada di path tersebut dengan menggunakan directory listing yang menggunakan header "dirent.h", .... 
 </br>
 
 ### 2c
@@ -772,7 +772,9 @@ Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke fold
 *Contoh: “`/petshop/cat/joni.jpg`”*. 
 </br>
 
-**Kode Program**</br>
+**Penjelasan**</br>
+Karena pada poin B kita sudah memisahkan antara **jenis**, **nama**, dan **usia** kita bisa menggunakan nama tersebut untuk nanti digunakan me-*rename*. Setelah kita membuat direktori pada poin B, sekarang kita akan memindahkan file dan me-rename file-filenya. Kita menginisialisasi nama file baru dengan cara menambahkannya pada suatu variabel yang dipassing dari awal, dan dipasangkan ke file baru pada saat proses peng-copy-an file sedang dilakukan.
+
 ```C
 void categorizePhoto(char *sourcePhoto, char *filename) {
     int status;
@@ -781,14 +783,9 @@ void categorizePhoto(char *sourcePhoto, char *filename) {
 
     jenis = strtok(filename, ";");
     nama = strtok(NULL, ";");
-    umur = strtok(NULL, ";");
-
-    sprintf(pathJenis, "%s/%s", PETSHOP_PATH, jenis);
-    sprintf(pathKeterangan, "%s/%s/keterangan.txt", PETSHOP_PATH, jenis);
+    ...
     sprintf(newFilename, "%s/%s/%s.jpg", PETSHOP_PATH, jenis, nama);
-
-    // Make the jenis directory
-    makeDir(pathJenis);
+    ...
 
     // Copy the original file to the directory and rename it to <nama>.jpg
     pid_t copyFile = fork();
@@ -799,9 +796,41 @@ void categorizePhoto(char *sourcePhoto, char *filename) {
     waitpid(copyFile, &status, 0);
     ...
 }
+
+void categorize(char const * folderPath) {
+    int status;
+
+    struct dirent *item;
+    DIR *petFolder;
+
+    // Open folder
+    if((petFolder = opendir(folderPath)) != NULL) {
+
+        // Loops through the item entries in the folder
+        int loop = 0;
+        while((item = readdir(petFolder)) != NULL) {
+            if(strcmp(item->d_name, "..") && strcmp(item->d_name, ".")) {
+                if(item->d_type == DT_REG) {
+                    ...
+
+                    categorizePhoto(sourcePath, leftPet);
+
+                    pid_t delFile = fork();
+                    if(delFile == 0) {
+                        printf("[!] Deleting source >> %s <<\n", sourcePath);
+                        char *args[] = {"rm", "-rf", sourcePath, NULL};
+                        execv("/usr/bin/rm", args);
+                    }
+
+                    while(wait(&status) > 0);
+                }
+            }
+        }
+    }
+}
+
 ```
-**Penjelasan**</br>
-Setelah kita membuat direktori pada poin B, sekarang kita akan memindahkan file dan me-rename file-filenya berdasarkan nama yang telah ditentukan dari yang telah diextract pada poin A. Kita menginisialisasi nama file baru dengan cara menambahkannya pada suatu variabel yang dipassing dari awal, dan dipasangkan ke file baru pada saat proses peng-copy-an file sedang dilakukan.
+
 </br>
 
 ### 2d
@@ -810,12 +839,17 @@ Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus 
 *Contoh: foto dengan nama “`dog;baro;1_cat;joni;2.jpg`” dipindah ke folder “`/petshop/cat/joni.jpg`” dan “`/petshop/dog/baro.jpg`”.*
 </br>
 
-**Kode Program**</br>
-```C
-
-```
 **Penjelasan**</br>
-
+Untuk dapat memisahkan jika ada pet dalam 1 foto, kita kembali menggunakan `strtok` dengan delimiter `_` untuk dapat memisahkan satu pet dengan pet satunya.
+```c
+void categorize(char const * folderPath) {
+                    ...
+                    char *leftPet = strtok(fileName, "_");
+                    char *rightPet = strtok(NULL, "_");
+                    ...
+}
+```
+Kemudian 
 </br>
 
 ### 2e
@@ -830,8 +864,28 @@ umur  : 2 tahun
 </br>
 
 **Penjelasan**</br>
-
+Untuk membuat `keterangan.txt` kita perlu membuka file `keterangan.txt` dengan mode `a` untuk *append*. File `keterangan.txt` dibuat dalam folder jenis setiap pet.
 </br>
+```c
+void categorizePhoto(char *sourcePhoto, char *filename) {
+    ...
+
+    sprintf(pathKeterangan, "%s/%s/keterangan.txt", PETSHOP_PATH, jenis);
+    ...
+
+    // Insert the animal name to keterangan.txt
+    char ketContent[128];
+    sprintf(ketContent, "nama : %s \numur : %s\n\n", nama, umur);
+
+    FILE *ketFile;
+    ketFile = fopen(pathKeterangan, "a");
+
+    if(ketFile) {
+        fprintf(ketFile, "%s", ketContent);
+        fclose(ketFile);
+    }
+}
+```
 
 ## Soal 3
 ### Narasi Soal
@@ -903,6 +957,9 @@ Note:
 (...) bagian kode tidak ditunjukkan untuk mempersingkat
 ```
 </br>
+
+**Output**</br>
+![Hasil 1B](./img/soal1B.PNG)
 
 ### 3b
 **Soal**</br>
@@ -1002,6 +1059,9 @@ Note:
 ```
 </br>
 
+**Output**</br>
+![Hasil 1B](./img/soal1B.PNG)
+
 ### 3c
 **Soal**</br>
 Setelah direktori telah terisi dengan 10 gambar, program tersebut akan membuat sebuah file “`status.txt`”, dimana didalamnya berisi pesan “`Download Success`” yang terenkripsi dengan teknik Caesar Cipher dan dengan shift 5. Caesar Cipher adalah Teknik enkripsi sederhana yang dimana dapat melakukan enkripsi string sesuai dengan shift/key yang kita tentukan. Misal huruf “A” akan dienkripsi dengan shift 4 maka akan menjadi “E”. Karena Ranora orangnya perfeksionis dan rapi, dia ingin setelah file tersebut dibuat, direktori akan di zip dan direktori akan didelete, sehingga menyisakan hanya file zip saja.
@@ -1078,6 +1138,9 @@ Note:
 ```
 </br>
 
+**Output**</br>
+![Hasil 1B](./img/soal1B.PNG)
+
 ### 3d
 **Soal**</br>
 Untuk mempermudah pengendalian program, pembimbing magang Ranora ingin program tersebut akan men-generate sebuah program “Killer” yang executable, dimana program tersebut akan menterminasi semua proses program yang sedang berjalan dan akan menghapus dirinya sendiri setelah program dijalankan. Karena Ranora menyukai sesuatu hal yang baru, maka Ranora memiliki ide untuk program “Killer” yang dibuat nantinya harus merupakan **program bash**.
@@ -1109,6 +1172,9 @@ void makeKiller(int mode, pid_t pid) {
 }
 ```
 </br>
+
+**Output**</br>
+![Hasil 1B](./img/soal1B.PNG)
 
 ### 3e
 **Soal**</br>
@@ -1178,3 +1244,6 @@ void makeKiller(int mode, pid_t pid) {
 Note:
 (...) bagian kode tidak ditunjukkan untuk mempersingkat
 ```
+
+**Output**</br>
+![Hasil 1B](./img/soal1B.PNG)
