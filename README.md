@@ -68,6 +68,9 @@ void makeFolder()
 Execv digunakan untuk menjalankan perintah bahasa _shell_ di dalam bahasa C.
 </br>
 
+**Output**</br>
+![Hasil 1A](./img/soal1A.PNG) 
+
 ### 1b
 **Soal**</br>
 Untuk musik Steven **mendownloadnya** dari link di bawah, film dari link di bawah lagi, dan foto dari link dibawah juga :). \
@@ -140,6 +143,10 @@ void downloadPhoto()
 **Penjelasan** \
 Untuk susunan pengerjaan, setiap fungsi untuk mendownload saya memasukkannya ke dalam parent setelah membuat folder yang di dalam parent tersebut, diinisialisasi child untuk mendownload film, di dalam parent-2nya diinisialisasi child lagi untuk mendownload musik dan parent terakhir digunakan untuk mendownload foto. Jadi proses berjalan secara bertahap atau tidak secara bersamaan dalam satu waktu.
 </br>
+
+**Output**</br>
+![Hasil 1B](./img/soal1B.PNG)
+![Hasil 1B](./img/soal1B_1.PNG)
 
 ### 1c
 **Soal**</br>
@@ -216,8 +223,11 @@ void unzipPhoto()
 ```
 
 **Penjelasan**</br>
+Pada poin C, kita diminta untuk mengextract isi dari semua file .zip yang telah terdownload ke dalam directory path yang sama dengan file .c. Proses mengextract terjadi secara seri sehingga tidak secara bersamaan mengextractnya.
 
-</br>
+**Output**</br>
+![Hasil 1C](./img/soal1C.PNG)
+![Hasil 1C](./img/soal1C_1.PNG)
 
 ### 1d
 **Soal**</br>
@@ -355,6 +365,11 @@ Setelah proses pada poin D selesai, maka akan langsung berjalan proses memindahk
  Khusus pemindahan file foto, kita hanya perlu memindahkan file-file yang berformat .jpg.
 </br>
 
+**Output**</br>
+![Hasil 1D](./img/soal1D.PNG)
+![Hasil 1D_1](./img/soal1D_1.PNG)
+![Hasil 1D_2](./img/soal1D_2.PNG)
+
 ### 1e
 **Soal**</br>
 Untuk memudahkan Steven, ia ingin semua hal di atas berjalan **otomatis** 6 jam sebelum waktu ulang tahun Stevany.
@@ -443,6 +458,9 @@ void jalaninYak()
 Soal meminta kita untuk berjalan secara otomatis di background, oleh karena itu, kita menggunakan Daemon. \
 Untuk menyetel agar program berjalan pada waktu tertentu, maka digunakan header ```time.h``` dan untuk mengaturnya, kita mengubah format current date menjadi string yang nanti akan dibandingkan setiap 2 detik sekali apakah sudah memenuhi jam yang diinginkan apa belum, jika belum, maka program akan terus menyimpan waktu ke dalam sebuah variabel, dan jika sudah memenuhi, program akan menjalankan proses selanjutnya. Pada poin soal ini adalah 6 jam sebelum pukul 22.22 pada tanggal 9 April, sehingga terjadi pukul 16.22
 </br>
+
+**Output**</br>
+![Hasil 1E](./img/soal1E.png)
 
 ### 1f
 **Soal**</br>
@@ -588,6 +606,9 @@ void delFylm()
 Untuk proses menjalankan pada waktu tertentu, sistemnya sama seperti pada poin E, namun untuk waktunya diset pukul 22.22 pada tanggal yang sama. Lalu untuk prosesnya secara bertahap juga, urutannya yaitu menghapus folder hasil unzip dari proses sebelumnya, kemudian meng-zip-kan folder "Musyik", "Pyoto", dan "Fylm" dengan format nama "Lopyu_Stevany.zip", lalu menghapus sisa folder yang ada di dalam direktori tersebut.
 
 </br>
+
+**Output**</br>
+![Hasil 1F](./img/soal1F.PNG)
 
 ## Soal 2
 ### Narasi Soal
