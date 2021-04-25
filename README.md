@@ -690,6 +690,10 @@ int main() {
 ```
 </br>
 
+**Output**</br>
+![image](https://user-images.githubusercontent.com/57354564/115991171-f02f3f00-a5f9-11eb-8aee-d0f88b0b083b.png)
+>Hasil setelah melakukan unzip file dan menghapus directory di-dalamnya.
+
 ### 2b
 **Soal**</br>
 Foto peliharaan perlu dikategorikan sesuai jenis peliharaan, maka kamu harus membuat folder untuk setiap jenis peliharaan yang ada dalam zip. Karena kamu tidak mungkin memeriksa satu-persatu, maka program harus membuatkan folder-folder yang dibutuhkan sesuai dengan isi zip.  
@@ -766,6 +770,10 @@ void categorize(char const * folderPath) {
 ```
 </br>
 
+**Output**</br>
+![image](https://user-images.githubusercontent.com/57354564/115991247-400e0600-a5fa-11eb-9468-cdb4eb41120e.png)
+>Hasil setelah membuat folder sesuai dengan jenis pet.
+
 ### 2c
 **Soal**</br>
 Setelah folder kategori berhasil dibuat, programmu akan memindahkan foto ke folder dengan kategori yang sesuai dan di rename dengan nama peliharaan.  
@@ -833,6 +841,10 @@ void categorize(char const * folderPath) {
 
 </br>
 
+**Output**</br>
+![image](https://user-images.githubusercontent.com/57354564/115991351-777cb280-a5fa-11eb-9691-49ffb43aea0d.png)
+>Hasil pada folder cat, nama foto sudah di-*rename* sesuai dengan nama kucing.
+
 ### 2d
 **Soal**</br>
 Karena dalam satu foto bisa terdapat lebih dari satu peliharaan maka foto harus di pindah ke masing-masing kategori yang sesuai.  
@@ -851,6 +863,11 @@ void categorize(char const * folderPath) {
 ```
 Kemudian 
 </br>
+
+**Output**</br>
+![image](https://user-images.githubusercontent.com/57354564/115991599-d989e780-a5fb-11eb-8237-eef0dc1bf2fb.png)
+![image](https://user-images.githubusercontent.com/57354564/115991635-0211e180-a5fc-11eb-97a3-3d7f3de283e1.png)
+>Pada folder cat dan dog terdapat foto yang sama dengan nama yang berbeda.
 
 ### 2e
 **Soal**</br>
@@ -886,6 +903,9 @@ void categorizePhoto(char *sourcePhoto, char *filename) {
     }
 }
 ```
+
+**Output**</br>
+![image](https://user-images.githubusercontent.com/57354564/115991709-4ef5b800-a5fc-11eb-8989-364ca629ac90.png)
 
 ## Soal 3
 ### Narasi Soal
