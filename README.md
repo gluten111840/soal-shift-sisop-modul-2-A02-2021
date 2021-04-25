@@ -1263,6 +1263,7 @@ Note:
 **Output poin D dan E**</br>
 ![image](https://user-images.githubusercontent.com/57354564/115992013-f8897900-a5fd-11eb-8c61-57f49319a2d2.png)
 > Program dijalankan dengan mode `-z` serta killer.sh yang dihasilkan.
+
 ![image](https://user-images.githubusercontent.com/57354564/115992062-37b7ca00-a5fe-11eb-8f0c-9b5216a2157d.png)
 > Program dijalankan dengan mode `-x`, killer.sh yang dihasilkan mengandung parent process id.
 
